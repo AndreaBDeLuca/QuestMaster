@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    >
+
+    <item
+        android:id="@+id/feedFragment"
+        android:title="@string/home"
+        android:tint="?attr/colorControlNormal"
+        android:icon="@mipmap/ic_home_icon_foreground"
+        />
+
+    <item
+        android:id="@+id/makeQuestFragment"
+        android:title="@string/make_a_quest"
+        android:tint="?attr/colorControlNormal"
+        android:icon="@mipmap/ic_quest_icon_foreground"
+        />
+
+    <item
+        android:id="@+id/personalProfileFragment"
+        android:title="@string/profile"
+        android:tint="?attr/colorControlNormal"
+        android:icon="@mipmap/ic_user_icon_foreground"
+        />
+
+    <item
+        android:id="@+id/settingsFragment"
+        android:title="@string/settings"
+        android:icon="@drawable/outline_settings_24"
+        />
+</menu>

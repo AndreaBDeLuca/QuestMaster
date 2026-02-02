@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <color name="l_palette">#a3b18a</color>
+    <color name="ml_palette">#A5AD9C</color>
+    <color name="m_palette">#97A58F</color>
+    <color name="md_palette">#58654F</color>
+    <color name="d_palette">#3a5a40</color>
+
+    <color name="l_background">#E6E8E1</color>
+    <color name="m_background">#dad7cd</color>
+
+    <color name="l_text">#C9D3C0</color>
+    <color name="d_text">#434F3C</color>
+
+
+</resources>
