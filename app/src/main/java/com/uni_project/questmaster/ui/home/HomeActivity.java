@@ -1,5 +1,6 @@
 package com.uni_project.questmaster.ui.home;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -47,6 +48,34 @@ public class HomeActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(toolbar, navController, appBarConfiguration);
 
         NavigationUI.setupWithNavController(bottomNav, navController);
+
+        handleIntent(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleIntent(intent);
+    }
+
+    private void handleIntent(Intent intent) {
+        if (intent != null && intent.hasExtra("open_fragment")) {
+            String fragmentToOpen = intent.getStringExtra("open_fragment");
+            Bundle bundle = new Bundle();
+
+            switch (fragmentToOpen) {
+                case "quest_view":
+                    String questId = intent.getStringExtra("questId");
+                    bundle.putString("questId", questId);
+                    navController.navigate(R.id.questViewFragment, bundle);
+                    break;
+                case "profile":
+                    String userId = intent.getStringExtra("userId");
+                    bundle.putString("userId", userId);
+                    navController.navigate(R.id.profileFragment, bundle);
+                    break;
+            }
+        }
     }
 
     @Override

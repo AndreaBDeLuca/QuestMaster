@@ -1,4 +1,3 @@
-
 package com.uni_project.questmaster.data.repository;
 
 import com.uni_project.questmaster.data.source.UserDataSource;
@@ -33,5 +32,10 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public Task<Void> completeQuest(String uid, String questId, long ppq) {
         return userDataSource.completeQuest(uid, questId, ppq);
+    }
+
+    @Override
+    public Task<Void> updateFcmToken(String uid, String token) {
+        return userDataSource.updateFcmToken(uid, token);
     }
 }
