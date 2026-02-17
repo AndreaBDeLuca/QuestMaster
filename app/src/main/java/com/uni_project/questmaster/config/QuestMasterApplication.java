@@ -1,4 +1,4 @@
-package com.uni_project.questmaster;
+package com.uni_project.questmaster.config;
 
 import android.app.Application;
 import android.app.NotificationChannel;
