@@ -1,25 +1,53 @@
 package com.uni_project.questmaster.model;
 
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+import androidx.room.TypeConverters;
+
 import com.google.firebase.firestore.ServerTimestamp;
+import com.uni_project.questmaster.data.local.Converters;
+
 import java.util.Date;
 
+@Entity(tableName = "comments")
 public class Comment {
+    @PrimaryKey(autoGenerate = true)
+    private int commentId;
+    private String questId;
     private String userId;
     private String username;
     private String avatarUrl;
     private String text;
     @ServerTimestamp
+    @TypeConverters(Converters.class)
     private Date timestamp;
 
     public Comment() {
     }
 
-    public Comment(String userId, String username, String avatarUrl, String text) {
+    public Comment(String questId, String userId, String username, String avatarUrl, String text) {
+        this.questId = questId;
         this.userId = userId;
         this.username = username;
         this.avatarUrl = avatarUrl;
         this.text = text;
         this.timestamp = new Date();
+    }
+
+    public int getCommentId() {
+        return commentId;
+    }
+
+    public void setCommentId(int commentId) {
+        this.commentId = commentId;
+    }
+
+    public String getQuestId() {
+        return questId;
+    }
+
+    public void setQuestId(String questId) {
+        this.questId = questId;
     }
 
     public String getUserId() {

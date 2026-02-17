@@ -25,7 +25,7 @@ public class AddCommentUseCase {
         String uid = authRepository.getCurrentUser().getUid();
         return userRepository.getUser(uid).onSuccessTask(user -> {
             if (user != null) {
-                Comment comment = new Comment(uid, user.getUsername(), user.getAvatarUrl(), commentText);
+                Comment comment = new Comment(questId, uid, user.getUsername(), user.getAvatarUrl(), commentText);
                 return commentRepository.addComment(questId, comment);
             }
             return null;

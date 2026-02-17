@@ -1,14 +1,24 @@
+
 package com.uni_project.questmaster.model;
 
-import com.google.firebase.firestore.Exclude;
+import androidx.annotation.NonNull;
+import androidx.room.Embedded;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+import androidx.room.TypeConverters;
+
 import com.google.firebase.firestore.ServerTimestamp;
+import com.uni_project.questmaster.data.local.Converters;
 
 import java.util.Date;
 import java.util.List;
 
+@Entity(tableName = "quests")
+@TypeConverters(Converters.class)
 public class Quest {
 
-    @Exclude
+    @PrimaryKey
+    @NonNull
     private String id;
 
     private String title;
@@ -22,19 +32,24 @@ public class Quest {
 
     private long ppq;
 
+    @Embedded(prefix = "start_")
     private QuestLocation startPoint;
+    @Embedded(prefix = "end_")
     private QuestLocation endPoint;
+    @Embedded(prefix = "loc_")
     private QuestLocation location;
 
 
     public Quest() {
+        this.id = "";
     }
 
+    @NonNull
     public String getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(@NonNull String id) {
         this.id = id;
     }
 
