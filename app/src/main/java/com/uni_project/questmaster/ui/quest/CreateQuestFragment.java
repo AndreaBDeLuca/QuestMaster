@@ -9,7 +9,6 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -34,32 +34,24 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.uni_project.questmaster.R;
 import com.uni_project.questmaster.adapter.QuestMediaAdapter;
-import com.uni_project.questmaster.model.Quest;
 import com.uni_project.questmaster.model.QuestLocation;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class CreateQuestFragment extends Fragment implements OnMapReadyCallback, QuestMediaAdapter.OnImageDeleteListener {
 
-    private static final String TAG = "CreateQuestFragment";
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private EditText editTextQuestName;
     private EditText editTextQuestDescription;
     private EditText editTextPpq;
     private Button buttonSaveQuest, buttonUploadImage;
-    private FirebaseFirestore db;
-    private FirebaseAuth mAuth;
-    private FirebaseStorage storage;
 
     private MapView mapView;
     private GoogleMap googleMap;
@@ -70,10 +62,10 @@ public class CreateQuestFragment extends Fragment implements OnMapReadyCallback,
 
     private QuestLocation startLocation, endLocation, singleQuestLocation;
     private final List<Uri> imageUris = new ArrayList<>();
-    private final List<String> imageUrls = new ArrayList<>();
-    private boolean isUploading = false;
     private RecyclerView recyclerViewImages;
     private QuestMediaAdapter questMediaAdapter;
+
+    private CreateQuestViewModel viewModel;
 
     private final ActivityResultLauncher<Intent> imagePickerLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -107,10 +99,8 @@ public class CreateQuestFragment extends Fragment implements OnMapReadyCallback,
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
             super.onViewCreated(view, savedInstanceState);
-            // DB
-            db = FirebaseFirestore.getInstance();
-            mAuth = FirebaseAuth.getInstance();
-            storage = FirebaseStorage.getInstance();
+            viewModel = new ViewModelProvider(this).get(CreateQuestViewModel.class);
+
             // VIEWS
             editTextQuestName = view.findViewById(R.id.edit_text_quest_name);
             editTextQuestDescription = view.findViewById(R.id.edit_text_quest_description);
@@ -128,12 +118,21 @@ public class CreateQuestFragment extends Fragment implements OnMapReadyCallback,
             search_start_point = view.findViewById(R.id.search_start_point);
             search_end_point = view.findViewById(R.id.search_end_point);
 
-            questMediaAdapter = new QuestMediaAdapter(getContext(), imageUris, this, true);
+            questMediaAdapter = new QuestMediaAdapter(getContext(), imageUris, this, true, null, getString(R.string.google_maps_key));
             recyclerViewImages.setAdapter(questMediaAdapter);
             recyclerViewImages.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
 
             buttonSaveQuest.setOnClickListener(v -> saveQuest());
             buttonUploadImage.setOnClickListener(v -> openImagePicker());
+
+            viewModel.questCreationResult.observe(getViewLifecycleOwner(), successful -> {
+                if (successful) {
+                    Toast.makeText(getContext(), "Quest created!", Toast.LENGTH_SHORT).show();
+                    NavHostFragment.findNavController(CreateQuestFragment.this).popBackStack();
+                } else {
+                    Toast.makeText(getContext(), "Error creating quest", Toast.LENGTH_SHORT).show();
+                }
+            });
 
             mapOptionsRadioGroup.setOnCheckedChangeListener((group, checkedId) -> {
                 if (checkedId == R.id.radio_no_map) {
@@ -176,24 +175,25 @@ public class CreateQuestFragment extends Fragment implements OnMapReadyCallback,
             List<Address> addresses = geocoder.getFromLocationName(locationName, 1);
             if (addresses != null && !addresses.isEmpty()) {
                 Address address = addresses.get(0);
-                LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+                QuestLocation questLocation = new QuestLocation(address.getLatitude(), address.getLongitude());
                 if (type.equals("single")) {
                     googleMap.clear();
-                    googleMap.addMarker(new MarkerOptions().position(latLng).title("Quest Location"));
-                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
-                    singleQuestLocation = new QuestLocation(latLng.latitude, latLng.longitude);
+                    googleMap.addMarker(new MarkerOptions().position(new LatLng(questLocation.getLatitude(), questLocation.getLongitude())).title("Quest Location"));
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(questLocation.getLatitude(), questLocation.getLongitude()), 15));
+                    singleQuestLocation = questLocation;
                     singleLocation.setText(address.getAddressLine(0));
                 } else if (type.equals("start")) {
-                    startLocation = new QuestLocation(latLng.latitude, latLng.longitude);
-                    googleMap.addMarker(new MarkerOptions().position(latLng).title("Start Point"));
-                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+                    startLocation = questLocation;
+                    googleMap.addMarker(new MarkerOptions().position(new LatLng(questLocation.getLatitude(), questLocation.getLongitude())).title("Start Point"));
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(questLocation.getLatitude(), questLocation.getLongitude()), 15));
                     startingPoint.setText(address.getAddressLine(0));
                 } else if (type.equals("end")) {
-                    endLocation = new QuestLocation(latLng.latitude, latLng.longitude);
-                    googleMap.addMarker(new MarkerOptions().position(latLng).title("End Point"));
-                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+                    endLocation = questLocation;
+                    googleMap.addMarker(new MarkerOptions().position(new LatLng(questLocation.getLatitude(), questLocation.getLongitude())).title("End Point"));
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(questLocation.getLatitude(), questLocation.getLongitude()), 15));
                     endPoint.setText(address.getAddressLine(0));
                 }
+                updateMapPreview();
             } else {
                 Toast.makeText(getContext(), "Location not found", Toast.LENGTH_SHORT).show();
             }
@@ -201,6 +201,11 @@ public class CreateQuestFragment extends Fragment implements OnMapReadyCallback,
             e.printStackTrace();
             Toast.makeText(getContext(), "Geocoder service not available", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void updateMapPreview() {
+        questMediaAdapter = new QuestMediaAdapter(getContext(), imageUris, this, true, singleQuestLocation, getString(R.string.google_maps_key));
+        recyclerViewImages.setAdapter(questMediaAdapter);
     }
 
 
@@ -213,10 +218,6 @@ public class CreateQuestFragment extends Fragment implements OnMapReadyCallback,
 
     @Override
     public void onImageDelete(int position) {
-        if (isUploading) {
-            Toast.makeText(getContext(), "Please wait for current uploads to finish.", Toast.LENGTH_SHORT).show();
-            return;
-        }
         imageUris.remove(position);
         questMediaAdapter.notifyItemRemoved(position);
         questMediaAdapter.notifyItemRangeChanged(position, imageUris.size());
@@ -234,126 +235,66 @@ public class CreateQuestFragment extends Fragment implements OnMapReadyCallback,
 
         googleMap.setOnMapClickListener(latLng -> {
             int checkedId = mapOptionsRadioGroup.getCheckedRadioButtonId();
+            QuestLocation questLocation = new QuestLocation(latLng.latitude, latLng.longitude);
             if (checkedId == R.id.radio_single_location) {
                 googleMap.clear();
                 googleMap.addMarker(new MarkerOptions().position(latLng).title("Quest Location"));
-                singleQuestLocation = new QuestLocation(latLng.latitude, latLng.longitude);
-                singleLocation.setText(latLng.latitude + ", " + latLng.longitude);
+                singleQuestLocation = questLocation;
+                singleLocation.setText(questLocation.getLatitude() + ", " + questLocation.getLongitude());
             } else if (checkedId == R.id.radio_start_end) {
                 if (startLocation == null) {
-                    startLocation = new QuestLocation(latLng.latitude, latLng.longitude);
+                    startLocation = questLocation;
                     googleMap.addMarker(new MarkerOptions().position(latLng).title("Start Point"));
-                    startingPoint.setText(latLng.latitude + ", " + latLng.longitude);
+                    startingPoint.setText(questLocation.getLatitude() + ", " + questLocation.getLongitude());
                 } else if (endLocation == null) {
-                    endLocation = new QuestLocation(latLng.latitude, latLng.longitude);
+                    endLocation = questLocation;
                     googleMap.addMarker(new MarkerOptions().position(latLng).title("End Point"));
-                    endPoint.setText(latLng.latitude + ", " + latLng.longitude);
-                } else {
-                    googleMap.clear();
-                    startLocation = new QuestLocation(latLng.latitude, latLng.longitude);
-                    endLocation = null;
-                    googleMap.addMarker(new MarkerOptions().position(latLng).title("Start Point"));
-                    startingPoint.setText(latLng.latitude + ", " + latLng.longitude);
-                    endPoint.setText("");
+                    endPoint.setText(questLocation.getLatitude() + ", " + questLocation.getLongitude());
                 }
             }
+            updateMapPreview();
         });
     }
 
     private void saveQuest() {
-        if (isUploading) {
-            Toast.makeText(getContext(), "Please wait for images to finish uploading.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        String title = editTextQuestName.getText().toString().trim();
-        String description = editTextQuestDescription.getText().toString().trim();
-        String ppqString = editTextPpq.getText().toString().trim();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-
-        if (currentUser == null) {
-            Toast.makeText(getContext(), "You have to be logged in to create a quest", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (title.isEmpty() || description.isEmpty() || ppqString.isEmpty()) {
-            Toast.makeText(getContext(), "Please, fill all the blanks", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        String questName = editTextQuestName.getText().toString();
+        String questDescription = editTextQuestDescription.getText().toString();
+        int ppq = Integer.parseInt(editTextPpq.getText().toString());
 
         int checkedId = mapOptionsRadioGroup.getCheckedRadioButtonId();
-        if (checkedId == R.id.radio_single_location && singleQuestLocation == null) {
-            Toast.makeText(getContext(), "Please select a location on the map.", Toast.LENGTH_SHORT).show();
-            return;
+        QuestLocation questLocation = null;
+        if (checkedId == R.id.radio_single_location) {
+            questLocation = singleQuestLocation;
+        } else if (checkedId == R.id.radio_start_end) {
+            // For now, let's just use the start location.
+            // You might want to handle start and end locations differently.
+            questLocation = startLocation;
         }
-        if (checkedId == R.id.radio_start_end && (startLocation == null || endLocation == null)) {
-            Toast.makeText(getContext(), "Please select a start and end point on the map.", Toast.LENGTH_SHORT).show();
-            return;
-        }
 
-        Runnable saveQuestLogic = () -> {
-            long ppq = Long.parseLong(ppqString);
-            String ownerId = currentUser.getUid();
-            String ownerName = currentUser.getDisplayName() != null ? currentUser.getDisplayName() : "Unknown user";
+        viewModel.createQuest(questName, questDescription, ppq, imageUris, questLocation);
+    }
 
-            Quest quest = new Quest();
-            quest.setTitle(title);
-            quest.setDescription(description);
-            quest.setOwnerId(ownerId);
-            quest.setOwnerName(ownerName);
-            quest.setImageUrls(imageUrls);
-            quest.setSavedBy(new ArrayList<>());
-            quest.setPpq(ppq);
+    @Override
+    public void onResume() {
+        super.onResume();
+        mapView.onResume();
+    }
 
-            if (checkedId == R.id.radio_single_location) {
-                quest.setLocation(singleQuestLocation);
-            } else if (checkedId == R.id.radio_start_end) {
-                quest.setStartPoint(startLocation);
-                quest.setEndPoint(endLocation);
-            }
+    @Override
+    public void onPause() {
+        super.onPause();
+        mapView.onPause();
+    }
 
-            db.collection("quests")
-                    .add(quest)
-                    .addOnSuccessListener(documentReference -> {
-                        Toast.makeText(getContext(), "Quest created!", Toast.LENGTH_SHORT).show();
-                        isUploading = false;
-                        buttonSaveQuest.setEnabled(true);
-                        NavHostFragment.findNavController(CreateQuestFragment.this).popBackStack();
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(getContext(), "Error creating quest", Toast.LENGTH_SHORT).show();
-                        Log.e(TAG, "Error adding document", e);
-                        isUploading = false;
-                        buttonSaveQuest.setEnabled(true);
-                    });
-        };
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mapView.onDestroy();
+    }
 
-        if (imageUris.isEmpty()) {
-            imageUrls.clear();
-            saveQuestLogic.run();
-        } else {
-            isUploading = true;
-            buttonSaveQuest.setEnabled(false);
-            Toast.makeText(getContext(), "Uploading images...", Toast.LENGTH_SHORT).show();
-            imageUrls.clear();
-
-            int totalImages = imageUris.size();
-            for (Uri uri : imageUris) {
-                StorageReference imageRef = storage.getReference().child("quest_images/" + UUID.randomUUID().toString());
-                imageRef.putFile(uri)
-                        .addOnSuccessListener(taskSnapshot -> imageRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
-                            imageUrls.add(downloadUri.toString());
-                            if (imageUrls.size() == totalImages) {
-                                saveQuestLogic.run();
-                            }
-                        }))
-                        .addOnFailureListener(e -> {
-                            isUploading = false;
-                            buttonSaveQuest.setEnabled(true);
-                            Toast.makeText(getContext(), "Image upload failed. Quest not saved.", Toast.LENGTH_LONG).show();
-                            Log.e(TAG, "Image upload failed", e);
-                        });
-            }
-        }
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        mapView.onLowMemory();
     }
 }

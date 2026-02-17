@@ -10,6 +10,9 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.uni_project.questmaster.R;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class StartActivity extends AppCompatActivity {
 
     @Override

@@ -3,44 +3,43 @@ package com.uni_project.questmaster.data.repository;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GoogleAuthProvider;
+import com.uni_project.questmaster.data.source.AuthDataSource;
 import com.uni_project.questmaster.domain.repository.AuthRepository;
+import javax.inject.Inject;
 
 public class AuthRepositoryImpl implements AuthRepository {
 
-    private final FirebaseAuth firebaseAuth;
+    private final AuthDataSource authDataSource;
 
-    public AuthRepositoryImpl(FirebaseAuth firebaseAuth) {
-        this.firebaseAuth = firebaseAuth;
+    @Inject
+    public AuthRepositoryImpl(AuthDataSource authDataSource) {
+        this.authDataSource = authDataSource;
     }
 
     @Override
     public FirebaseUser getCurrentUser() {
-        return firebaseAuth.getCurrentUser();
+        return authDataSource.getCurrentUser();
     }
 
     @Override
     public Task<AuthResult> signInWithEmailAndPassword(String email, String password) {
-        return firebaseAuth.signInWithEmailAndPassword(email, password);
+        return authDataSource.signInWithEmailAndPassword(email, password);
     }
 
     @Override
     public Task<AuthResult> createUserWithEmailAndPassword(String email, String password) {
-        return firebaseAuth.createUserWithEmailAndPassword(email, password);
+        return authDataSource.createUserWithEmailAndPassword(email, password);
     }
 
     @Override
     public Task<AuthResult> signInWithGoogle(GoogleSignInAccount account) {
-        AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
-        return firebaseAuth.signInWithCredential(credential);
+        return authDataSource.signInWithGoogle(account);
     }
 
     @Override
     public void signOut() {
-        firebaseAuth.signOut();
+        authDataSource.signOut();
     }
 }

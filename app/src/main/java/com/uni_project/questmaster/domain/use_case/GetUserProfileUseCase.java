@@ -5,9 +5,12 @@ import com.google.android.gms.tasks.Task;
 import com.uni_project.questmaster.domain.repository.UserRepository;
 import com.uni_project.questmaster.model.User;
 
+import javax.inject.Inject;
+
 public class GetUserProfileUseCase {
     private final UserRepository repository;
 
+    @Inject
     public GetUserProfileUseCase(UserRepository repository) {
         this.repository = repository;
     }

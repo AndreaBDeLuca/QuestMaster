@@ -5,9 +5,12 @@ import com.google.android.gms.tasks.Task;
 import com.uni_project.questmaster.domain.repository.QuestRepository;
 import com.uni_project.questmaster.model.Quest;
 
+import javax.inject.Inject;
+
 public class GetQuestUseCase {
     private final QuestRepository repository;
 
+    @Inject
     public GetQuestUseCase(QuestRepository repository) {
         this.repository = repository;
     }

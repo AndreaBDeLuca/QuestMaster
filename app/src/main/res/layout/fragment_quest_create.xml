@@ -5,8 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/l_background"
-    android:id="@+id/makeQuestFragment"
-    tools:context=".ui.home.fragments.QuestCreateFragment">
+    tools:context=".ui.quest.CreateQuestFragment">
 
     <ScrollView
         android:layout_width="0dp"
@@ -247,6 +246,7 @@
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_save_quest"
                 style="@style/Widget.MaterialComponents.Button"
@@ -257,11 +257,7 @@
                 android:text="@string/save"
                 android:backgroundTint="@color/d_palette"
                 android:textColor="@color/l_text"
-                app:cornerRadius="18dp" />
-
+                />
         </LinearLayout>
-
-
     </ScrollView>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

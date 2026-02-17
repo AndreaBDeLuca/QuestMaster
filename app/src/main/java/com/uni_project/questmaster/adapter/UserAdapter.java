@@ -79,7 +79,6 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
 
         public UserViewHolder(@NonNull View itemView) {
             super(itemView);
-            // Ensure these IDs match your R.layout.card_user
             profileImage = itemView.findViewById(R.id.user_profile_image);
             username = itemView.findViewById(R.id.user_name);
         }

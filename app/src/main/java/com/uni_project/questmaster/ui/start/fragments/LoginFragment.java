@@ -29,10 +29,12 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.uni_project.questmaster.R;
 import com.uni_project.questmaster.ui.start.viewmodel.LoginViewModel;
-import com.uni_project.questmaster.ui.start.viewmodel.LoginViewModelFactory;
 
 import org.apache.commons.validator.routines.EmailValidator;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class LoginFragment extends Fragment {
 
     private static final String TAG = "LoginFragment";
@@ -51,8 +53,7 @@ public class LoginFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        LoginViewModelFactory factory = new LoginViewModelFactory(requireActivity().getApplication());
-        viewModel = new ViewModelProvider(this, factory).get(LoginViewModel.class);
+        viewModel = new ViewModelProvider(this).get(LoginViewModel.class);
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))

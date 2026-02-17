@@ -1,4 +1,3 @@
-
 package com.uni_project.questmaster.ui.quest;
 
 import androidx.lifecycle.LiveData;
@@ -19,6 +18,11 @@ import com.uni_project.questmaster.model.User;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.lifecycle.HiltViewModel;
+
+@HiltViewModel
 public class QuestViewViewModel extends ViewModel {
 
     private final GetQuestUseCase getQuestUseCase;
@@ -42,6 +46,7 @@ public class QuestViewViewModel extends ViewModel {
     private final MutableLiveData<User> _currentUser = new MutableLiveData<>();
     public LiveData<User> currentUser = _currentUser;
 
+    @Inject
     public QuestViewViewModel(GetQuestUseCase getQuestUseCase, GetCommentsUseCase getCommentsUseCase, AddCommentUseCase addCommentUseCase, ToggleSavedQuestUseCase toggleSavedQuestUseCase, CompleteQuestUseCase completeQuestUseCase, DeleteQuestUseCase deleteQuestUseCase, GetUserProfileUseCase getUserProfileUseCase, AuthRepository authRepository) {
         this.getQuestUseCase = getQuestUseCase;
         this.getCommentsUseCase = getCommentsUseCase;

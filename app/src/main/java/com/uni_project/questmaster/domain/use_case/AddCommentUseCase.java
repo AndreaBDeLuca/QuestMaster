@@ -7,11 +7,14 @@ import com.uni_project.questmaster.domain.repository.CommentRepository;
 import com.uni_project.questmaster.domain.repository.UserRepository;
 import com.uni_project.questmaster.model.Comment;
 
+import javax.inject.Inject;
+
 public class AddCommentUseCase {
     private final CommentRepository commentRepository;
     private final AuthRepository authRepository;
     private final UserRepository userRepository;
 
+    @Inject
     public AddCommentUseCase(CommentRepository commentRepository, AuthRepository authRepository, UserRepository userRepository) {
         this.commentRepository = commentRepository;
         this.authRepository = authRepository;

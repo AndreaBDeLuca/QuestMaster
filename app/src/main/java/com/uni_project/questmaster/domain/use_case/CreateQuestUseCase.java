@@ -1,11 +1,10 @@
-
 package com.uni_project.questmaster.domain.use_case;
 
 import android.net.Uri;
 
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.uni_project.questmaster.domain.repository.AuthRepository;
@@ -17,32 +16,30 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import javax.inject.Inject;
+
 public class CreateQuestUseCase {
     private final QuestRepository questRepository;
     private final AuthRepository authRepository;
-    private final StorageReference storageReference;
+    private final FirebaseStorage storage;
 
-    public CreateQuestUseCase(QuestRepository questRepository, AuthRepository authRepository, StorageReference storageReference) {
+    @Inject
+    public CreateQuestUseCase(QuestRepository questRepository, AuthRepository authRepository, FirebaseStorage storage) {
         this.questRepository = questRepository;
         this.authRepository = authRepository;
-        this.storageReference = storageReference;
+        this.storage = storage;
     }
 
-    public Task<Void> execute(String title, String description, long ppq, List<Uri> mediaUris, LatLng location) {
+    public Task<Void> execute(String title, String description, long ppq, List<Uri> mediaUris, QuestLocation location) {
         String ownerId = authRepository.getCurrentUser().getUid();
 
-        QuestLocation questLocation = null;
-        if (location != null) {
-            questLocation = new QuestLocation(location.latitude, location.longitude);
-        }
-
         if (mediaUris == null || mediaUris.isEmpty()) {
-            return createQuest(title, description, ppq, ownerId, new ArrayList<>(), questLocation);
+            return createQuest(title, description, ppq, ownerId, new ArrayList<>(), location);
         }
 
         List<Task<Uri>> uploadTasks = new ArrayList<>();
         for (Uri uri : mediaUris) {
-            StorageReference ref = storageReference.child("quest_media/" + UUID.randomUUID().toString());
+            StorageReference ref = storage.getReference().child("quest_media/" + UUID.randomUUID().toString());
             UploadTask uploadTask = ref.putFile(uri);
             Task<Uri> urlTask = uploadTask.continueWithTask(task -> {
                 if (!task.isSuccessful()) {
@@ -52,13 +49,13 @@ public class CreateQuestUseCase {
             });
             uploadTasks.add(urlTask);
         }
-        QuestLocation finalQuestLocation = questLocation;
+
         return Tasks.whenAllSuccess(uploadTasks).onSuccessTask(urls -> {
             List<String> downloadUrls = new ArrayList<>();
             for (Object url : urls) {
                 downloadUrls.add(url.toString());
             }
-            return createQuest(title, description, ppq, ownerId, downloadUrls, finalQuestLocation);
+            return createQuest(title, description, ppq, ownerId, downloadUrls, location);
         });
     }
 

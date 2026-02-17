@@ -23,6 +23,9 @@
         <action
             android:id="@+id/action_feedFragment_to_settingsFragment"
             app:destination="@id/settingsFragment" />
+        <action
+            android:id="@+id/action_feedFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
     </fragment>
 
     <!-- CREATE QUEST -->
@@ -30,7 +33,7 @@
         android:id="@+id/createQuestFragment"
         android:name="com.uni_project.questmaster.ui.quest.CreateQuestFragment"
         android:label="fragment_create_quest"
-        tools:layout="@layout/fragment_create_quest" >
+        tools:layout="@layout/fragment_quest_create" >
         <action
             android:id="@+id/action_createQuestFragment_to_feedFragment"
             app:destination="@id/feedFragment" />
@@ -91,7 +94,7 @@
     <!-- QUEST VIEW -->
     <fragment
         android:id="@+id/questViewFragment"
-        android.name="com.uni_project.questmaster.ui.quest.QuestViewFragment"
+        android:name="com.uni_project.questmaster.ui.quest.QuestViewFragment"
         android:label="QuestViewFragment"
         tools:layout="@layout/fragment_quest_view">
         <argument

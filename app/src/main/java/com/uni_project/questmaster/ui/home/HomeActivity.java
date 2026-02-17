@@ -15,6 +15,9 @@ import com.uni_project.questmaster.R;
 import java.util.HashSet;
 import java.util.Set;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class HomeActivity extends AppCompatActivity {
 
     private NavController navController;
@@ -35,7 +38,7 @@ public class HomeActivity extends AppCompatActivity {
 
         Set<Integer> topLevelDestinations = new HashSet<>();
         topLevelDestinations.add(R.id.feedFragment);
-        topLevelDestinations.add(R.id.makeQuestFragment);
+        topLevelDestinations.add(R.id.createQuestFragment);
         topLevelDestinations.add(R.id.personalProfileFragment);
         topLevelDestinations.add(R.id.settingsFragment);
 

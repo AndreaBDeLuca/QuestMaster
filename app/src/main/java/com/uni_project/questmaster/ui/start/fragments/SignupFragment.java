@@ -29,13 +29,15 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.uni_project.questmaster.R;
 import com.uni_project.questmaster.ui.start.viewmodel.SignupViewModel;
-import com.uni_project.questmaster.ui.start.viewmodel.SignupViewModelFactory;
 
 import org.apache.commons.validator.routines.EmailValidator;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class SignupFragment extends Fragment {
     private static final String TAG = "SignupFragment";
     private SignupViewModel viewModel;
@@ -47,8 +49,7 @@ public class SignupFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        SignupViewModelFactory factory = new SignupViewModelFactory(requireActivity().getApplication());
-        viewModel = new ViewModelProvider(this, factory).get(SignupViewModel.class);
+        viewModel = new ViewModelProvider(this).get(SignupViewModel.class);
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))

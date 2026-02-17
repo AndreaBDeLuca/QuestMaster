@@ -5,10 +5,13 @@ import com.google.android.gms.tasks.Task;
 import com.uni_project.questmaster.domain.repository.AuthRepository;
 import com.uni_project.questmaster.domain.repository.UserRepository;
 
+import javax.inject.Inject;
+
 public class CompleteQuestUseCase {
     private final UserRepository userRepository;
     private final AuthRepository authRepository;
 
+    @Inject
     public CompleteQuestUseCase(UserRepository userRepository, AuthRepository authRepository) {
         this.userRepository = userRepository;
         this.authRepository = authRepository;

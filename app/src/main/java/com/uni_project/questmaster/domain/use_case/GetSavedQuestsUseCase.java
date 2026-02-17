@@ -1,12 +1,13 @@
-
 package com.uni_project.questmaster.domain.use_case;
 
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.uni_project.questmaster.domain.repository.AuthRepository;
 import com.uni_project.questmaster.domain.repository.QuestRepository;
 import com.uni_project.questmaster.domain.repository.UserRepository;
 import com.uni_project.questmaster.model.Quest;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class GetSavedQuestsUseCase {
@@ -24,9 +25,9 @@ public class GetSavedQuestsUseCase {
         String currentUserId = authRepository.getCurrentUser().getUid();
         return userRepository.getUser(currentUserId).onSuccessTask(user -> {
             if (user != null && user.getSavedQuests() != null && !user.getSavedQuests().isEmpty()) {
-                return questRepository.getQuestsByIds(user.getSavedQuests());
+                return questRepository.getQuests(user.getSavedQuests());
             }
-            return null;
+            return Tasks.forResult(new ArrayList<>());
         });
     }
 }

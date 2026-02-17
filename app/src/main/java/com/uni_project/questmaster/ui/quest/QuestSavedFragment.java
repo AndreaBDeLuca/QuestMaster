@@ -1,4 +1,3 @@
-
 package com.uni_project.questmaster.ui.quest;
 
 import android.os.Bundle;
@@ -20,15 +19,21 @@ import com.uni_project.questmaster.adapter.QuestAdapter;
 import com.uni_project.questmaster.model.Quest;
 import com.uni_project.questmaster.model.User;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-public class QuestSavedFragment extends Fragment implements QuestAdapter.OnQuestClickListener {
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
+public class QuestSavedFragment extends Fragment {
 
     private static final String TAG = "QuestSavedFragment";
     private RecyclerView savedQuestsRecyclerView;
     private QuestAdapter questAdapter;
     private QuestSavedViewModel viewModel;
+
+    private List<Quest> currentQuests = null;
+    private Map<String, User> currentUserProfiles = null;
 
     @Nullable
     @Override
@@ -40,35 +45,45 @@ public class QuestSavedFragment extends Fragment implements QuestAdapter.OnQuest
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        QuestSavedViewModelFactory factory = new QuestSavedViewModelFactory(requireActivity().getApplication());
-        viewModel = new ViewModelProvider(this, factory).get(QuestSavedViewModel.class);
+        viewModel = new ViewModelProvider(this).get(QuestSavedViewModel.class);
 
         savedQuestsRecyclerView = view.findViewById(R.id.savedQuestsRecyclerView);
         savedQuestsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        questAdapter = new QuestAdapter(getContext(), new ArrayList<>(), this);
+        
+        questAdapter = new QuestAdapter(getContext());
+        questAdapter.setOnQuestClickListener(quest -> {
+            Bundle bundle = new Bundle();
+            bundle.putString("questId", quest.getId());
+            NavHostFragment.findNavController(this).navigate(R.id.action_questSavedFragment_to_questViewFragment, bundle);
+        });
         savedQuestsRecyclerView.setAdapter(questAdapter);
 
         viewModel.savedQuests.observe(getViewLifecycleOwner(), quests -> {
             if (quests != null) {
-                questAdapter.updateQuests(quests);
+                currentQuests = quests;
+                updateAdapterData();
             } else {
                 Log.e(TAG, "Error loading saved quests");
             }
         });
 
+        // This observer might be unnecessary if user profiles are not displayed here
         viewModel.userProfiles.observe(getViewLifecycleOwner(), userProfiles -> {
             if (userProfiles != null) {
-                questAdapter.updateUserProfiles(userProfiles);
+                currentUserProfiles = userProfiles;
+                updateAdapterData();
             }
         });
 
         viewModel.loadSavedQuests();
     }
 
-    @Override
-    public void onQuestClick(Quest quest) {
-        Bundle bundle = new Bundle();
-        bundle.putString("questId", quest.getId());
-        NavHostFragment.findNavController(this).navigate(R.id.action_questSavedFragment_to_questViewFragment, bundle);
+    private void updateAdapterData() {
+        // The QuestAdapter now takes Lists of Quests and Users.
+        // If you only have quests, you can pass null or an empty list for users.
+        // Assuming this fragment only shows saved quests, we pass null for users.
+        if (currentQuests != null) {
+            questAdapter.setData(currentQuests, null);
+        }
     }
 }

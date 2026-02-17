@@ -1,4 +1,3 @@
-
 package com.uni_project.questmaster.ui.quest;
 
 import androidx.lifecycle.LiveData;
@@ -14,6 +13,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.lifecycle.HiltViewModel;
+
+@HiltViewModel
 public class QuestSavedViewModel extends ViewModel {
 
     private final GetSavedQuestsUseCase getSavedQuestsUseCase;
@@ -25,6 +29,7 @@ public class QuestSavedViewModel extends ViewModel {
     private final MutableLiveData<Map<String, User>> _userProfiles = new MutableLiveData<>();
     public LiveData<Map<String, User>> userProfiles = _userProfiles;
 
+    @Inject
     public QuestSavedViewModel(GetSavedQuestsUseCase getSavedQuestsUseCase, GetUserProfileUseCase getUserProfileUseCase) {
         this.getSavedQuestsUseCase = getSavedQuestsUseCase;
         this.getUserProfileUseCase = getUserProfileUseCase;

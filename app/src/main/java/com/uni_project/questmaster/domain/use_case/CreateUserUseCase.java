@@ -21,7 +21,7 @@ public class CreateUserUseCase {
                 .onSuccessTask(authResult -> {
                     String uid = authResult.getUser().getUid();
                     User user = new User(uid, username, email);
-                    return userRepository.updateUser(user).continueWith(task -> authResult);
+                    return userRepository.createUser(user).continueWith(task -> authResult);
                 });
     }
 }

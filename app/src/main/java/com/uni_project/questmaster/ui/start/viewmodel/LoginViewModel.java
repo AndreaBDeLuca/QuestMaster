@@ -1,4 +1,3 @@
-
 package com.uni_project.questmaster.ui.start.viewmodel;
 
 import androidx.lifecycle.LiveData;
@@ -11,6 +10,11 @@ import com.uni_project.questmaster.domain.use_case.GetCurrentUserUseCase;
 import com.uni_project.questmaster.domain.use_case.GoogleSignInUseCase;
 import com.uni_project.questmaster.domain.use_case.LoginUserUseCase;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.lifecycle.HiltViewModel;
+
+@HiltViewModel
 public class LoginViewModel extends ViewModel {
 
     private final LoginUserUseCase loginUserUseCase;
@@ -23,6 +27,7 @@ public class LoginViewModel extends ViewModel {
     private final MutableLiveData<Boolean> _isLoggedIn = new MutableLiveData<>();
     public LiveData<Boolean> isLoggedIn = _isLoggedIn;
 
+    @Inject
     public LoginViewModel(LoginUserUseCase loginUserUseCase, GoogleSignInUseCase googleSignInUseCase, GetCurrentUserUseCase getCurrentUserUseCase) {
         this.loginUserUseCase = loginUserUseCase;
         this.googleSignInUseCase = googleSignInUseCase;

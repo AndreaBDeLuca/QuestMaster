@@ -28,6 +28,9 @@ import com.uni_project.questmaster.viewmodel.QuestViewModel;
 import java.util.ArrayList;
 import java.util.List;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class FeedFragment extends Fragment implements QuestAdapter.OnQuestClickListener, QuestAdapter.OnUserClickListener {
 
     private RecyclerView recyclerView;
@@ -78,7 +81,7 @@ public class FeedFragment extends Fragment implements QuestAdapter.OnQuestClickL
 
         questViewModel.getQuests().observe(getViewLifecycleOwner(), quests -> {
             questViewModel.getUsers().observe(getViewLifecycleOwner(), users -> {
-                questAdapter.setData(quests, users);
+                filter(searchView.getQuery().toString());
                 loadingIndicator.setVisibility(View.GONE);
                 recyclerView.setVisibility(View.VISIBLE);
             });
@@ -112,10 +115,12 @@ public class FeedFragment extends Fragment implements QuestAdapter.OnQuestClickL
             }
         }
 
-        if (questViewModel.getUsers().getValue() != null) {
-            for (User user : questViewModel.getUsers().getValue()) {
-                if (user.getName().toLowerCase().contains(text.toLowerCase())) {
-                    filteredUsers.add(user);
+        if (!text.isEmpty()) {
+            if (questViewModel.getUsers().getValue() != null) {
+                for (User user : questViewModel.getUsers().getValue()) {
+                    if (user.getUsername().toLowerCase().contains(text.toLowerCase())) {
+                        filteredUsers.add(user);
+                    }
                 }
             }
         }

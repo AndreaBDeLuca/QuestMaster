@@ -1,4 +1,3 @@
-
 package com.uni_project.questmaster.ui.quest;
 
 import android.content.Intent;
@@ -33,6 +32,9 @@ import com.uni_project.questmaster.model.User;
 import java.util.ArrayList;
 import java.util.List;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class QuestViewFragment extends Fragment {
 
     private QuestViewViewModel viewModel;
@@ -64,8 +66,7 @@ public class QuestViewFragment extends Fragment {
             questId = getArguments().getString("questId");
         }
 
-        QuestViewViewModelFactory factory = new QuestViewViewModelFactory(requireActivity().getApplication());
-        viewModel = new ViewModelProvider(this, factory).get(QuestViewViewModel.class);
+        viewModel = new ViewModelProvider(this).get(QuestViewViewModel.class);
 
         initializeViews(view);
         setupCommentsRecyclerView();
@@ -109,8 +110,12 @@ public class QuestViewFragment extends Fragment {
 
     private void updateQuestUI(Quest quest) {
         if (quest == null) {
-            Toast.makeText(getContext(), "Quest not found.", Toast.LENGTH_SHORT).show();
-            NavHostFragment.findNavController(QuestViewFragment.this).popBackStack();
+            if (getContext() != null) {
+                Toast.makeText(getContext(), "Quest not found.", Toast.LENGTH_SHORT).show();
+            }
+            if(isAdded()){
+                NavHostFragment.findNavController(QuestViewFragment.this).popBackStack();
+            }
             return;
         }
         currentQuest = quest;
@@ -123,8 +128,8 @@ public class QuestViewFragment extends Fragment {
                 mediaUris.add(Uri.parse(url));
             }
         }
-        if (!mediaUris.isEmpty()) {
-            QuestMediaAdapter questMediaAdapter = new QuestMediaAdapter(getContext(), mediaUris, null, false);
+        if (getContext() != null) {
+            QuestMediaAdapter questMediaAdapter = new QuestMediaAdapter(getContext(), mediaUris, null, false, quest.getLocation(), getString(R.string.google_maps_key));
             recyclerViewQuestMedia.setAdapter(questMediaAdapter);
             recyclerViewQuestMedia.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         }
@@ -202,6 +207,7 @@ public class QuestViewFragment extends Fragment {
     }
 
     private void shareQuest() {
+        if (currentQuest == null) return;
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.setType("text/plain");
         shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Invite to Quest: " + currentQuest.getTitle());
@@ -216,7 +222,9 @@ public class QuestViewFragment extends Fragment {
             return;
         }
         if (viewModel.getCurrentUserId() == null) {
-            Toast.makeText(getContext(), "You must be logged in to comment", Toast.LENGTH_SHORT).show();
+            if (getContext() != null) {
+                Toast.makeText(getContext(), "You must be logged in to comment", Toast.LENGTH_SHORT).show();
+            }
             return;
         }
 

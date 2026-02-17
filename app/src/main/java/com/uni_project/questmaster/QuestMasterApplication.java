@@ -9,15 +9,15 @@ import androidx.appcompat.app.AppCompatDelegate;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.appcheck.FirebaseAppCheck;
 import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory;
-import com.uni_project.questmaster.di.AppContainer;
 
+import dagger.hilt.android.HiltAndroidApp;
+
+@HiltAndroidApp
 public class QuestMasterApplication extends Application {
-    public AppContainer appContainer;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        appContainer = new AppContainer();
 
         SharedPreferences sharedPreferences = getSharedPreferences("Settings", Context.MODE_PRIVATE);
         boolean isDarkMode = sharedPreferences.getBoolean("dark_mode", false);

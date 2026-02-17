@@ -11,7 +11,7 @@
         />
 
     <item
-        android:id="@+id/makeQuestFragment"
+        android:id="@+id/createQuestFragment"
         android:title="@string/make_a_quest"
         android:tint="?attr/colorControlNormal"
         android:icon="@mipmap/ic_quest_icon_foreground"

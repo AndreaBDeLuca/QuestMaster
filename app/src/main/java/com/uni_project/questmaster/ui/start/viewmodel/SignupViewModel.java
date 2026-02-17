@@ -10,6 +10,11 @@ import com.google.firebase.auth.AuthResult;
 import com.uni_project.questmaster.domain.use_case.CreateUserUseCase;
 import com.uni_project.questmaster.domain.use_case.GoogleSignInUseCase;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.lifecycle.HiltViewModel;
+
+@HiltViewModel
 public class SignupViewModel extends ViewModel {
 
     private final CreateUserUseCase createUserUseCase;
@@ -18,6 +23,7 @@ public class SignupViewModel extends ViewModel {
     private final MutableLiveData<AuthResult> _signupResult = new MutableLiveData<>();
     public LiveData<AuthResult> signupResult = _signupResult;
 
+    @Inject
     public SignupViewModel(CreateUserUseCase createUserUseCase, GoogleSignInUseCase googleSignInUseCase) {
         this.createUserUseCase = createUserUseCase;
         this.googleSignInUseCase = googleSignInUseCase;
